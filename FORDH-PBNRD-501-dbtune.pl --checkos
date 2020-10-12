@@ -1,0 +1,34 @@
+[root@FORDH-PBNRD-501 bin]# dbtune.pl --checkos
+
+======================
+----dbtune.pl v3.0----
+--updated 07.18.2019--
+======================
+
+-----dbtune.pl LOG DIRECTORY-----
+dbtune dir - /home/svc_oracle/dbtune/
+---------------------------------
+
+
+-----------------------------------------------
+Checking Parameters
+-----------------------------------------------
+---Report Executed On---
+Tue Aug 13 08:33:22 2019
+
+---OS Memory---
+Total Memory in kb : 129106030592
+
+-----------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------
+Parameter name              Current              Desired              Change Needed        Change Requires Bounce
+---------------------------------------------------------------------------------------------------------------------
+fs.aio-max-nr               1048576              21516288             yes                     no
+vm.nr_hugepages             35000                39524                yes                     no
+kernel.shmmax               64553015296          82678120448          yes                     no
+kernel.shmmni               4096                 4096                 no                      no
+kernel.shmall               268435456            51642412236          yes                     no
+hard memlock                120586240            113472097            yes                     yes
+soft memlock                120586240            113472097            yes                     yes
+

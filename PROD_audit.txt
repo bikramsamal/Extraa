@@ -1,0 +1,220 @@
+PROD
+==========
+[svc_oracle@FORDH-PBNRD-501 ~]$ audit.pl
+*
+*Processing class auto ...
+*
+
+File: auto/0008.xml
+Symptom:
+  Banner database 2k blocksize cache not configured correctly.
+
+Diagnosis:
+  db_2k_cache_size must be set to 208M;
+
+Severity: low, Downtime: no, Execution Time: 5s
+
+File: auto/0016.xml
+Symptom:
+  Flash Recovery Area not configured to standard location and size.
+
+Diagnosis:
+  db_recovery_file_dest_size must be set to 20G
+db_recovery_file_dest must set to /u03/fast_recovery_area
+
+Severity: low, Downtime: no, Execution Time: 5s
+
+File: auto/0034.xml
+Symptom:
+  [Banner only] Global statistics gathering parameter is set to disable
+
+Diagnosis:
+  [Banner only] Global statistics gathering parameter must be changed to repeat if disabled
+
+Severity: high, Downtime: no, Execution Time: 5m
+
+File: auto/0037.xml
+Symptom:
+  [Banner only] Hidden parameters are set in the database.  Our standard is for no hidden parameters to be set.
+
+Diagnosis:
+  [Banner only] One or more hidden parameters are set in the database and must be removed.
+
+Severity: low, Downtime: no, Execution Time: 1s
+
+
+File: auto/0039.xml
+Symptom:
+  For Banner databases, open_cursors, resource limit, or control file record keep is not set to standard
+
+Diagnosis:
+  For Banner Databases:
+open_cursors must be set to 1024.
+control_file_record_keep_time must be set to 35.
+resource_limit must be set to true.
+
+Severity: low, Downtime: no, Execution Time: 5s
+
+File: auto/0040.xml
+Symptom:
+  For Banner databases - some system users have profiles which are not set to NOEXPIRE.
+
+Diagnosis:
+  For Banner Databases:
+The following users must have a profile set to NOEXPIRE:
+
+BAN_SS_USER
+BANPROXY
+BANJSPROXY
+BANINST1
+BANWORX
+GENLPRD
+SYSTEM
+WWW_USER
+WWW2_USER
+
+Severity: low, Downtime: no, Execution Time: 5s
+
+
+File: auto/0041.xml
+Symptom:
+  CR-000133774: Poor performance with bwckctlg.p_display_courses after WebTailor 8.7 upgrade and twbksecr.f_escape. When bypassing the Cross-site scripting (XSS) code in twbksec1, total database time in the ADDM report is cut in half.
+
+Diagnosis:
+  F_ESCAPE is present in twbksec package.
+
+Severity: high, Downtime: no, Execution Time: 5m
+
+File: auto/0042.xml
+Symptom:
+  Registration process performance issue due to one missing index
+
+Diagnosis:
+  Table SATURN.SFRSTCR needs one more index
+
+Severity: low, Downtime: no, Execution Time: 30s
+
+*
+*Processing class semi ...
+*
+
+File: semi/0001.xml
+Symptom:
+  For Banner databases - recycle_bin is not set, and session_cache_cursors not set to 500.
+
+Diagnosis:
+  For Banner Databases:
+recycle_bin must be turned ON.
+session_cached_cursors must be set to 500.
+
+Severity: medium, Downtime: Yes, Execution Time: 5m
+
+File: semi/0008.xml
+Symptom:
+  Database has unusable indexes.
+
+Diagnosis:
+  Database has unusable indexes. Treatment will attempt to rebuild these, however if they are still unusable you may need to recreate them.
+
+Severity: medium, Downtime: Yes, Execution Time: 5m
+
+*
+*Processing class manual ...
+*
+
+
+======================
+----dbtune.pl v3.0----
+--updated 07.18.2019--
+======================
+
+-----dbtune.pl LOG DIRECTORY-----
+dbtune dir - /home/svc_oracle/dbtune/
+---------------------------------
+
+File: manual/0008.xml
+Symptom:
+  Database and OS parameters are not set to current Cloud Services standards.
+
+Diagnosis:
+  One or more of the following are set incorrectly:
+
+--Database--
+sga_max_size
+sga_target
+processes
+pga_aggregate_target
+pga_aggregate_limit
+memory_target
+memory_max_target
+
+--OS--
+fs.aio-max-nr
+vm.nr_hugepages
+kernel.shmmax
+kernel.shmmni
+kernel.shmall
+memlock
+
+
+Severity: medium, Downtime: Yes, Execution Time: 15m
+
+File: manual/0010.xml
+Symptom:
+  Multiple /etc/host entries exist and must be cleaned up.
+
+Diagnosis:
+  Remove invalid or unused /etc/hosts entries
+
+Severity: medium, Downtime: yes, Execution Time: 5m
+
+*
+*Processing class report ...
+*
+
+File: report/0003.xml
+Symptom:
+  AWR report shows that the AUD$ segment has the highest physical reads.
+
+Diagnosis:
+  The AUD$ table is greater than 100GB.
+
+Severity: N/A, Downtime: N/A, Execution Time: N/A
+
+File: report/0004.xml
+Symptom:
+  Default messaging in use for email notifications that are sent to users where there has been a change to their direct deposit or email information.
+
+Diagnosis:
+  Customer will need to complete steps 3 from Article 000036160 - Steps to implement Direct deposit email notification.  No action to be taken from Ellucian.
+
+Severity: low, Downtime: no, Execution Time: 1s
+
+File: report/0006.xml
+Symptom:
+  Customers who are using Banner 8 registration.
+
+Diagnosis:
+  The following customer is using Banner 8 for registration.
+
+Severity: low, Downtime: no, Execution Time: 1s
+
+File: report/0007.xml
+Symptom:
+  Registration process performance issue due to one missing index
+
+Diagnosis:
+  Table SATURN.SFRSTCR needs one more index
+
+Severity: N/A, Downtime: N/A, Execution Time: N/A
+
+File: report/0008.xml
+Symptom:
+  Customer Direct Deposit links in Banner 8 or 9 have not been disabled and should be.
+
+Diagnosis:
+  Direct Deposit links in Banner 8/9 should be disabled.
+
+Severity: low, Downtime: no, Execution Time: 1s
+
+Done!

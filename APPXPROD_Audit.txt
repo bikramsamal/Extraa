@@ -1,0 +1,114 @@
+[svc_oracle@FORDH-PBNRD-501 ~]$ . oraenv
+ORACLE_SID = [PROD] ? APPXPROD
+The Oracle base remains unchanged with value /u01/app/oracle
+[svc_oracle@FORDH-PBNRD-501 ~]$
+[svc_oracle@FORDH-PBNRD-501 ~]$ audit.pl
+*
+*Processing class auto ...
+*
+
+File: auto/0016.xml
+Symptom:
+  Flash Recovery Area not configured to standard location and size.
+
+Diagnosis:
+  db_recovery_file_dest_size must be set to 20G
+db_recovery_file_dest must set to /u03/fast_recovery_area
+
+Severity: low, Downtime: no, Execution Time: 5s
+
+
+File: auto/0039.xml
+Symptom:
+  For Banner databases, open_cursors, resource limit, or control file record keep is not set to standard
+
+Diagnosis:
+  For Banner Databases:
+open_cursors must be set to 1024.
+control_file_record_keep_time must be set to 35.
+resource_limit must be set to true.
+
+Severity: low, Downtime: no, Execution Time: 5s
+
+
+*
+*Processing class semi ...
+*
+
+File: semi/0001.xml
+Symptom:
+  For Banner databases - recycle_bin is not set, and session_cache_cursors not set to 500.
+
+Diagnosis:
+  For Banner Databases:
+recycle_bin must be turned ON.
+session_cached_cursors must be set to 500.
+
+Severity: medium, Downtime: Yes, Execution Time: 5m
+
+File: semi/0005.xml
+Symptom:
+  Database archivelog format is not set to standard.
+
+Diagnosis:
+  Archivelog file format must the set to the following:
+
+log_archive_format='%t_%s_%r.arc'
+
+Severity: medium, Downtime: Yes, Execution Time: 5m
+
+*
+*Processing class manual ...
+*
+
+
+======================
+----dbtune.pl v3.0----
+--updated 07.18.2019--
+======================
+
+-----dbtune.pl LOG DIRECTORY-----
+dbtune dir - /home/svc_oracle/dbtune/
+---------------------------------
+
+File: manual/0008.xml
+Symptom:
+  Database and OS parameters are not set to current Cloud Services standards.
+
+Diagnosis:
+  One or more of the following are set incorrectly:
+
+--Database--
+sga_max_size
+sga_target
+processes
+pga_aggregate_target
+pga_aggregate_limit
+memory_target
+memory_max_target
+
+--OS--
+fs.aio-max-nr
+vm.nr_hugepages
+kernel.shmmax
+kernel.shmmni
+kernel.shmall
+memlock
+
+
+Severity: medium, Downtime: Yes, Execution Time: 15m
+
+File: manual/0010.xml
+Symptom:
+  Multiple /etc/host entries exist and must be cleaned up.
+
+Diagnosis:
+  Remove invalid or unused /etc/hosts entries
+
+Severity: medium, Downtime: yes, Execution Time: 5m
+
+*
+*Processing class report ...
+*
+
+Done!

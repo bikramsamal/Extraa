@@ -1,0 +1,8190 @@
+SP2-0734: unknown command beginning "SQL>ALTER ..." - rest of line ignored.
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+TIME
+</th>
+</tr>
+<tr>
+<td>
+23-JUL-19
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- In the following output the DATABASE_ROLE should be LOGICAL STANDBY as that is what this script is intended to be run on.
+<br>
+SQL> -- PLATFORM_ID should match the PLATFORM_ID of the standby(s) or conform to the supported options in
+<br>
+SQL> -- Note: 413484.1 Data Guard Support for Heterogeneous Primary and Physical Standbys in Same Data Guard Configuration
+<br>
+SQL> -- Note: 1085687.1 Data Guard Support for Heterogeneous Primary and Logical Standbys in Same Data Guard Configuration
+<br>
+SQL> -- OPEN_MODE should be READ WRITE.
+<br>
+SQL> -- LOG_MODE should be ARCHIVELOG.
+<br>
+SQL> -- FLASHBACK can be YES (recommended) or NO.
+<br>
+SQL> -- If PROTECTION_LEVEL is different from PROTECTION_MODE then for some reason the mode listed in PROTECTION_MODE experienced a need to downgrade.
+<br>
+SQL> -- Once the error condition has been corrected the PROTECTION_LEVEL should match the PROTECTION_MODE after the next log switch;
+<br>
+SQL> 
+<br>
+SQL> SELECT database_role role, name, db_unique_name, platform_id, open_mode, log_mode, flashback_on, protection_mode, protection_level FROM v$database;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+ROLE
+</th>
+<th scope="col">
+NAME
+</th>
+<th scope="col">
+DB_UNIQUE_NAME
+</th>
+<th scope="col">
+PLATFORM_ID
+</th>
+<th scope="col">
+OPEN_MODE
+</th>
+<th scope="col">
+LOG_MODE
+</th>
+<th scope="col">
+FLASHBACK_ON
+</th>
+<th scope="col">
+PROTECTION_MODE
+</th>
+<th scope="col">
+PROTECTION_LEVEL
+</th>
+</tr>
+<tr>
+<td>
+LOGICAL STANDBY
+</td>
+<td>
+SNAP
+</td>
+<td>
+SNAP
+</td>
+<td align="right">
+              13
+</td>
+<td>
+READ WRITE
+</td>
+<td>
+ARCHIVELOG
+</td>
+<td>
+NO
+</td>
+<td>
+MAXIMUM AVAILABILITY
+</td>
+<td>
+RESYNCHRONIZATION
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- FORCE_LOGGING is not mandatory but is recommended.
+<br>
+SQL> -- REMOTE_ARCHIVE should be ENABLE.
+<br>
+SQL> -- SUPPLEMENTAL_LOG_DATA_PK and SUPPLEMENTAL_LOG_DATA_UI must be enabled if this is a logical standby.
+<br>
+SQL> -- During normal operations it is acceptable for SWITCHOVER_STATUS to be NOT ALLOWED.
+<br>
+SQL> -- DG_BROKER can be ENABLED (recommended) or DISABLED.
+<br>
+SQL> 
+<br>
+SQL> column force_logging format a13 tru
+<br>
+SQL> column remote_archive format a14 tru
+<br>
+SQL> column supplemental_log_data_pk format a24 tru
+<br>
+SQL> column supplemental_log_data_ui format a24 tru
+<br>
+SQL> column dataguard_broker format a16 tru
+<br>
+SQL> 
+<br>
+SQL> SELECT force_logging, remote_archive, supplemental_log_data_pk, supplemental_log_data_ui, switchover_status, dataguard_broker  FROM v$database;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+FORCE_LOGGING
+</th>
+<th scope="col">
+REMOTE_ARCHIVE
+</th>
+<th scope="col">
+SUPPLEMENTAL_LOG_DATA_PK
+</th>
+<th scope="col">
+SUPPLEMENTAL_LOG_DATA_UI
+</th>
+<th scope="col">
+SWITCHOVER_STATUS
+</th>
+<th scope="col">
+DATAGUARD_BROKER
+</th>
+</tr>
+<tr>
+<td>
+NO
+</td>
+<td>
+ENABLED
+</td>
+<td>
+YES
+</td>
+<td>
+YES
+</td>
+<td>
+NOT ALLOWED
+</td>
+<td>
+DISABLED
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- The following query gives us information about catpatch. From this we can tell if the catalog version doesn''t match the image version it was started with.
+<br>
+SQL> 
+<br>
+SQL> column version format a10 tru
+<br>
+SQL> 
+<br>
+SQL> SELECT version, modified, status FROM dba_registry WHERE comp_id = 'CATPROC';
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+VERSION
+</th>
+<th scope="col">
+MODIFIED
+</th>
+<th scope="col">
+STATUS
+</th>
+</tr>
+<tr>
+<td>
+12.2.0.1.0
+</td>
+<td>
+20-JUL-2019 18:24:57
+</td>
+<td>
+VALID
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Check how many threads are enabled and started for this database. If the number of instances below does not match then not all instances are up.
+<br>
+SQL> 
+<br>
+SQL> SELECT thread#, instance, status FROM v$thread;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+INSTANCE
+</th>
+<th scope="col">
+STATUS
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+SNAP
+</td>
+<td>
+OPEN
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- The number of instances returned below is the number currently running.  If it does not match the number returned in Threads above then not all instances are up.
+<br>
+SQL> -- VERSION should match the version from CATPROC above.
+<br>
+SQL> -- ARCHIVER can be (STOPPED | STARTED | FAILED). FAILED means that the archiver failed to archive a log last time, but will try again within 5 minutes.
+<br>
+SQL> -- LOG_SWITCH_WAIT the ARCHIVE LOG/CLEAR LOG/CHECKPOINT event log switching is waiting for.
+<br>
+SQL> -- Note that if ALTER SYSTEM SWITCH LOGFILE is hung, but there is room in the current online redo log, then the value is NULL.
+<br>
+SQL> 
+<br>
+SQL> column host_name format a32 wrap
+<br>
+SQL> 
+<br>
+SQL> SELECT thread#, instance_name, host_name, version, archiver, log_switch_wait FROM gv$instance ORDER BY thread#;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+INSTANCE_NAME
+</th>
+<th scope="col">
+HOST_NAME
+</th>
+<th scope="col">
+VERSION
+</th>
+<th scope="col">
+ARCHIVE
+</th>
+<th scope="col">
+LOG_SWITCH_WAIT
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+SNAP
+</td>
+<td>
+middcprptduva01
+</td>
+<td>
+12.2.0.1.0
+</td>
+<td>
+STARTED
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Check how often logs are switching. Log switches should not regularly be occuring in < 20 mins.
+<br>
+SQL> -- Excessive log switching is a performance overhead. Whilst rapid log switching is not in itself a Data Guard issue it can affect Data guard.
+<br>
+SQL> -- It may also indicate a problem with log shipping. Use redo log size = 4GB or redo log size >= peak redo rate x 20 minutes.
+<br>
+SQL> 
+<br>
+SQL> SELECT fs.log_switches_under_20_mins, ss.log_switches_over_20_mins FROM (SELECT  SUM(COUNT (ROUND((b.first_time - a.first_time) * 1440) )) "LOG_SWITCHES_UNDER_20_MINS"  FROM v$archived_log a, v$archived_log b WHERE a.sequence# + 1 = b.sequence# AND a.dest_id = 1 AND a.thread# = b.thread#  AND a.dest_id = b.dest_id AND a.dest_id = (SELECT MIN(dest_id) FROM gv$archive_dest WHERE target='PRIMARY' AND destination IS NOT NULL) AND ROUND((b.first_time - a.first_time) * 1440)	< 20 GROUP BY ROUND((b.first_time - a.first_time) * 1440))  fs, (SELECT  SUM(COUNT (ROUND((b.first_time - a.first_time) * 1440) )) "LOG_SWITCHES_OVER_20_MINS"	FROM v$archived_log a, v$archived_log b WHERE a.sequence# + 1 = b.sequence# AND a.dest_id = 1 AND a.thread# = b.thread#  AND a.dest_id = b.dest_id AND a.dest_id = (SELECT MIN(dest_id) FROM gv$archive_dest WHERE target='PRIMARY' AND destination IS NOT NULL) AND ROUND((b.first_time - a.first_time) * 1440)  > 19 GROUP BY ROUND((b.first_time - a.first_time) * 1440)) ss;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+LOG_SWITCHES_UNDER_20_MINS
+</th>
+<th scope="col">
+LOG_SWITCHES_OVER_20_MINS
+</th>
+</tr>
+<tr>
+<td align="right">
+             459
+</td>
+<td align="right">
+               1
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Check the number and size of online redo logs on each thread.
+<br>
+SQL> 
+<br>
+SQL> SELECT thread#, group#, sequence#, bytes, archived ,status FROM v$log ORDER BY thread#, group#;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+GROUP#
+</th>
+<th scope="col">
+SEQUENCE#
+</th>
+<th scope="col">
+BYTES
+</th>
+<th scope="col">
+ARC
+</th>
+<th scope="col">
+STATUS
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               1
+</td>
+<td align="right">
+             461
+</td>
+<td align="right">
+      4294967296
+</td>
+<td>
+YES
+</td>
+<td>
+ACTIVE
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               2
+</td>
+<td align="right">
+             462
+</td>
+<td align="right">
+      4294967296
+</td>
+<td>
+NO
+</td>
+<td>
+CURRENT
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               3
+</td>
+<td align="right">
+             457
+</td>
+<td align="right">
+      4294967296
+</td>
+<td>
+YES
+</td>
+<td>
+INACTIVE
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               4
+</td>
+<td align="right">
+             460
+</td>
+<td align="right">
+      4294967296
+</td>
+<td>
+YES
+</td>
+<td>
+ACTIVE
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               5
+</td>
+<td align="right">
+             458
+</td>
+<td align="right">
+      4294967296
+</td>
+<td>
+YES
+</td>
+<td>
+INACTIVE
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               6
+</td>
+<td align="right">
+             459
+</td>
+<td align="right">
+      4294967296
+</td>
+<td>
+YES
+</td>
+<td>
+INACTIVE
+</td>
+</tr>
+</table>
+<p>
+
+6 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- The following query is run to see if standby redo logs have been created in preparation for switchover.
+<br>
+SQL> -- The standby redo logs should be the same size as the online redo logs.<br>There should be (( # of online logs per thread + 1) * # of threads) standby redo logs.
+<br>
+SQL> -- A value of 0 for the thread# means the log has never been allocated.
+<br>
+SQL> 
+<br>
+SQL> SELECT thread#, group#, sequence#, bytes, archived, status FROM v$standby_log ORDER BY thread#, group#;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+GROUP#
+</th>
+<th scope="col">
+SEQUENCE#
+</th>
+<th scope="col">
+BYTES
+</th>
+<th scope="col">
+ARC
+</th>
+<th scope="col">
+STATUS
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               7
+</td>
+<td align="right">
+             414
+</td>
+<td align="right">
+      4294967296
+</td>
+<td>
+YES
+</td>
+<td>
+ACTIVE
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- This query produces a list of defined archive destinations. It shows if they are enabled, what process is servicing that destination,
+<br>
+SQL> -- if the destination is local or remote.
+<br>
+SQL> 
+<br>
+SQL> column destination format a35 wrap
+<br>
+SQL> column process format a7
+<br>
+SQL> column ID format 99
+<br>
+SQL> column mid format 99
+<br>
+SQL> 
+<br>
+SQL> SELECT thread#, dest_id, destination, target, schedule, process FROM gv$archive_dest gvad, gv$instance gvi WHERE gvad.inst_id = gvi.inst_id AND destination is NOT NULL ORDER BY thread#, dest_id;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+DEST_ID
+</th>
+<th scope="col">
+DESTINATION
+</th>
+<th scope="col">
+TARGET
+</th>
+<th scope="col">
+SCHEDULE
+</th>
+<th scope="col">
+PROCESS
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               1
+</td>
+<td>
+/u03/archivelog/SNAP
+</td>
+<td>
+PRIMARY
+</td>
+<td>
+ACTIVE
+</td>
+<td>
+ARCH
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               2
+</td>
+<td>
+/u03/archivelog/SNAP/standby_logs
+</td>
+<td>
+PRIMARY
+</td>
+<td>
+ACTIVE
+</td>
+<td>
+ARCH
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+              32
+</td>
+<td>
+/u03/archivelog/SNAP
+</td>
+<td>
+STANDBY
+</td>
+<td>
+ACTIVE
+</td>
+<td>
+RFS
+</td>
+</tr>
+</table>
+<p>
+
+3 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- This select will give further detail on the destinations as to what options have been set.
+<br>
+SQL> -- Register indicates whether or not the archived redo log is registered in the remote destination control fileOptions.
+<br>
+SQL> 
+<br>
+SQL> set numwidth 8
+<br>
+SQL> column archiver format a8
+<br>
+SQL> column affirm format a6
+<br>
+SQL> column error format a55 wrap
+<br>
+SQL> column register format a8
+<br>
+SQL> 
+<br>
+SQL> SELECT thread#, dest_id, gvad.archiver, transmit_mode, affirm, async_blocks, net_timeout, max_failure, delay_mins, reopen_secs reopen, register, binding FROM gv$archive_dest gvad, gv$instance gvi WHERE gvad.inst_id = gvi.inst_id AND destination is NOT NULL ORDER BY thread#, dest_id;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+DEST_ID
+</th>
+<th scope="col">
+ARCHIVER
+</th>
+<th scope="col">
+TRANSMIT_MOD
+</th>
+<th scope="col">
+AFFIRM
+</th>
+<th scope="col">
+ASYNC_BLOCKS
+</th>
+<th scope="col">
+NET_TIMEOUT
+</th>
+<th scope="col">
+MAX_FAILURE
+</th>
+<th scope="col">
+DELAY_MINS
+</th>
+<th scope="col">
+REOPEN
+</th>
+<th scope="col">
+REGISTER
+</th>
+<th scope="col">
+BINDING
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               1
+</td>
+<td>
+ARCH
+</td>
+<td>
+SYNCHRONOUS
+</td>
+<td>
+NO
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+             300
+</td>
+<td>
+YES
+</td>
+<td>
+OPTIONAL
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               2
+</td>
+<td>
+ARCH
+</td>
+<td>
+SYNCHRONOUS
+</td>
+<td>
+NO
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+             300
+</td>
+<td>
+YES
+</td>
+<td>
+OPTIONAL
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+              32
+</td>
+<td>
+ARCH
+</td>
+<td>
+SYNCHRONOUS
+</td>
+<td>
+YES
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+             300
+</td>
+<td>
+YES
+</td>
+<td>
+OPTIONAL
+</td>
+</tr>
+</table>
+<p>
+
+3 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- The following select will show any errors that occured the last time an attempt to archive to the destination was attempted.
+<br>
+SQL> -- If ERROR is blank and status is VALID then the archive completed correctly.
+<br>
+SQL> 
+<br>
+SQL> SELECT thread#, dest_id, gvad.status, error, fail_sequence FROM gv$archive_dest gvad, gv$instance gvi WHERE gvad.inst_id = gvi.inst_id AND destination is NOT NULL ORDER BY thread#, dest_id;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+DEST_ID
+</th>
+<th scope="col">
+STATUS
+</th>
+<th scope="col">
+ERROR
+</th>
+<th scope="col">
+FAIL_SEQUENCE
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               1
+</td>
+<td>
+VALID
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               2
+</td>
+<td>
+VALID
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+              32
+</td>
+<td>
+VALID
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+</table>
+<p>
+
+3 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- The query below will determine if any error conditions have been reached by querying the v$dataguard_status view (view only available in 9.2.0 and above).
+<br>
+SQL> 
+<br>
+SQL> column message format a80
+<br>
+SQL> 
+<br>
+SQL> SELECT gvi.thread#, timestamp, message FROM gv$dataguard_status gvds, gv$instance gvi WHERE gvds.inst_id = gvi.inst_id AND severity in ('Error','Fatal') ORDER BY timestamp, thread#;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+TIMESTAMP
+</th>
+<th scope="col">
+MESSAGE
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[1]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[2]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[3]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[4]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[5]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[6]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[7]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[8]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[9]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[10]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[11]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[12]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[13]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[14]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[15]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[16]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[17]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[18]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[19]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[20]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[21]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[22]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[23]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[24]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[25]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[26]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[27]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+23-JUL-19
+</td>
+<td>
+RFS[28]: No standby redo logfiles selected (reason:7)
+</td>
+</tr>
+</table>
+<p>
+
+28 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Query v$managed_standby to see the status of processes involved in the shipping redo on this system.
+<br>
+SQL> -- Does not include processes needed to apply redo.
+<br>
+SQL> 
+<br>
+SQL> SELECT inst_id, thread#, process, pid, status, client_process, client_pid, sequence#, block#, active_agents, known_agents FROM gv$managed_standby ORDER BY thread#, pid;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+INST_ID
+</th>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+PROCESS
+</th>
+<th scope="col">
+PID
+</th>
+<th scope="col">
+STATUS
+</th>
+<th scope="col">
+CLIENT_P
+</th>
+<th scope="col">
+CLIENT_PID
+</th>
+<th scope="col">
+SEQUENCE#
+</th>
+<th scope="col">
+BLOCK#
+</th>
+<th scope="col">
+ACTIVE_AGENTS
+</th>
+<th scope="col">
+KNOWN_AGENTS
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               0
+</td>
+<td>
+DGRD
+</td>
+<td>
+22915
+</td>
+<td>
+ALLOCATED
+</td>
+<td>
+N/A
+</td>
+<td>
+N/A
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               0
+</td>
+<td>
+DGRD
+</td>
+<td>
+22919
+</td>
+<td>
+ALLOCATED
+</td>
+<td>
+N/A
+</td>
+<td>
+N/A
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               0
+</td>
+<td>
+DGRD
+</td>
+<td>
+22928
+</td>
+<td>
+ALLOCATED
+</td>
+<td>
+N/A
+</td>
+<td>
+N/A
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               1
+</td>
+<td>
+ARCH
+</td>
+<td>
+22917
+</td>
+<td>
+CLOSING
+</td>
+<td>
+ARCH
+</td>
+<td>
+22917
+</td>
+<td align="right">
+             448
+</td>
+<td align="right">
+               1
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               1
+</td>
+<td>
+ARCH
+</td>
+<td>
+22921
+</td>
+<td>
+CLOSING
+</td>
+<td>
+ARCH
+</td>
+<td>
+22921
+</td>
+<td align="right">
+             446
+</td>
+<td align="right">
+         1982464
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               1
+</td>
+<td>
+ARCH
+</td>
+<td>
+22923
+</td>
+<td>
+CLOSING
+</td>
+<td>
+ARCH
+</td>
+<td>
+22923
+</td>
+<td align="right">
+             439
+</td>
+<td align="right">
+               1
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               1
+</td>
+<td>
+ARCH
+</td>
+<td>
+22925
+</td>
+<td>
+CLOSING
+</td>
+<td>
+ARCH
+</td>
+<td>
+22925
+</td>
+<td align="right">
+             444
+</td>
+<td align="right">
+          233472
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+</table>
+<p>
+
+7 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Verify that the last sequence# received and the last sequence# applied to the standby database.
+<br>
+SQL> 
+<br>
+SQL> SELECT r.thread#, rmax "Last Sequence Received" , appmax "Last Sequence APPLIED" FROM (SELECT thread#, MAX(sequence#) rmax FROM dba_logstdby_log  WHERE resetlogs_change# = (SELECT MAX(resetlogs_change#) FROM v$rfs_thread ) GROUP BY thread#) r,(SELECT thread#, MAX(sequence#) appmax FROM dba_logstdby_log WHERE resetlogs_change# = (SELECT MAX(resetlogs_change#) FROM v$rfs_thread) AND applied = 'YES' GROUP BY thread#)	a  WHERE r.thread# = a.thread#;
+<br>
+
+no rows selected
+
+<br>
+SQL> 
+<br>
+SQL> -- Check if there are any gaps in the logs being sent to the standby.  Detects multiple gaps across threads.
+<br>
+SQL> 
+<br>
+SQL> SELECT a.thread#, a.sequence# + 1 "LOW_SEQUENCE#", b.sequence# -1 "HIGH_SEQUENCE#" FROM (SELECT thread#, rownum rnum, sequence#  FROM dba_logstdby_log) a, (SELECT thread#, rownum rnum , sequence# FROM dba_logstdby_log) b where a.rnum +1 = b.rnum and a.sequence# +1 <> b.sequence# AND a.thread# = b.thread# ORDER BY a.thread#, low_sequence#;
+<br>
+
+no rows selected
+
+<br>
+SQL> 
+<br>
+SQL> -- Verify that log apply services on the standby are currently  running.
+<br>
+SQL> -- If the query against V$LOGSTDBY returns no rows then logical apply is not running.
+<br>
+SQL> 
+<br>
+SQL> column status format a50 wrap
+<br>
+SQL> column type format a11
+<br>
+SQL> set numwidth 15
+<br>
+SQL> 
+<br>
+SQL> SELECT type, status, high_scn FROM v$logstdby;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+TYPE
+</th>
+<th scope="col">
+STATUS
+</th>
+<th scope="col">
+HIGH_SCN
+</th>
+</tr>
+<tr>
+<td>
+COORDINATOR
+</td>
+<td>
+ORA-16116: no work available
+</td>
+<td align="right">
+     66762061521
+</td>
+</tr>
+<tr>
+<td>
+ANALYZER
+</td>
+<td>
+ORA-16116: no work available
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+APPLIER
+</td>
+<td>
+ORA-16116: no work available
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+APPLIER
+</td>
+<td>
+ORA-16116: no work available
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+APPLIER
+</td>
+<td>
+ORA-16116: no work available
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+APPLIER
+</td>
+<td>
+ORA-16116: no work available
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+APPLIER
+</td>
+<td>
+ORA-16116: no work available
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+READER
+</td>
+<td>
+ORA-16240: Waiting for log file (thread# 1, sequen
+ce# 414)
+</td>
+<td align="right">
+     66762061521
+</td>
+</tr>
+<tr>
+<td>
+BUILDER
+</td>
+<td>
+ORA-16116: no work available
+</td>
+<td align="right">
+     66762061516
+</td>
+</tr>
+<tr>
+<td>
+PREPARER
+</td>
+<td>
+ORA-16116: no work available
+</td>
+<td align="right">
+     66762061518
+</td>
+</tr>
+</table>
+<p>
+
+10 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- The DBA_LOGSTDBY_PROGRESS view describes the progress of SQL apply operations on the logical standby databases.
+<br>
+SQL> -- The APPLIED_SCN indicates that committed transactions at or below that SCN have been applied.
+<br>
+SQL> -- The NEWEST_SCN is the maximum SCN to which data could be applied if no more logs were received.
+<br>
+SQL> -- This is usually the MAX(NEXT_CHANGE#)-1 from DBA_LOGSTDBY_LOG.
+<br>
+SQL> -- The value of NEWEST_SCN and APPLIED_SCN are equal then all available changes have been applied.
+<br>
+SQL> -- If your APPLIED_SCN is below NEWEST_SCN and is increasing then SQL apply is currently processing changes.
+<br>
+SQL> 
+<br>
+SQL> set numwidth 15
+<br>
+SQL> 
+<br>
+SQL> SELECT
+<br>
+  2    (CASE
+<br>
+  3  	 WHEN newest_scn = applied_scn THEN 'Done'
+<br>
+  4  	 WHEN newest_scn <= applied_scn + 9 THEN 'Done?'
+<br>
+  5  	 WHEN newest_scn > (SELECT MAX(next_change#) FROM dba_logstdby_log)
+<br>
+  6  	 THEN 'Near done'
+<br>
+  7  	 WHEN (SELECT COUNT(*) FROM dba_logstdby_log
+<br>
+  8  	       WHERE (next_change#, thread#) NOT IN
+<br>
+  9  		       (SELECT first_change#, thread# FROM dba_logstdby_log)) > 1
+<br>
+ 10  	 THEN 'Gap'
+<br>
+ 11  	 WHEN newest_scn > applied_scn THEN 'Not Done'
+<br>
+ 12  	 ELSE '---' END) "Fin?",
+<br>
+ 13  	 newest_scn, applied_scn, read_scn FROM dba_logstdby_progress;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+Fin?
+</th>
+<th scope="col">
+NEWEST_SCN
+</th>
+<th scope="col">
+APPLIED_SCN
+</th>
+<th scope="col">
+READ_SCN
+</th>
+</tr>
+<tr>
+<td>
+Near done
+</td>
+<td align="right">
+     66762085745
+</td>
+<td align="right">
+     66762061520
+</td>
+<td align="right">
+     66762061095
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Check the newest time, applied time and read time from dba_logstdby_progress.
+<br>
+SQL> 
+<br>
+SQL> SQL>ALTER SESSION SET NLS_DATE_FORMAT='DD-MON-YYYY HH24:MI:SS';
+<br>
+SP2-0734: unknown command beginning "SQL>ALTER ..." - rest of line ignored.
+<br>
+SQL> SQL>SELECT newest_time, applied_time, read_time FROM dba_logstdby_progress;
+<br>
+SP2-0734: unknown command beginning "SQL>SELECT..." - rest of line ignored.
+<br>
+SQL> 
+<br>
+SQL> -- Determine if apply is lagging behind and by how much.
+<br>
+SQL> -- Missing sequence#'s in a range indicate that a gap exists'
+<br>
+SQL> 
+<br>
+SQL> set numwidth 15
+<br>
+SQL> column trd format 99
+<br>
+SQL> 
+<br>
+SQL> SELECT thread#, sequence#, first_change#, next_change#, dict_begin beg, dict_end end, TO_CHAR(timestamp, 'hh:mi:ss') timestamp, (CASE WHEN l.next_change# < p.read_scn THEN 'YES' WHEN l.first_change# < p.applied_scn THEN 'CURRENT' ELSE 'NO' END) applied FROM dba_logstdby_log l, dba_logstdby_progress p ORDER BY thread#, first_change#;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+SEQUENCE#
+</th>
+<th scope="col">
+FIRST_CHANGE#
+</th>
+<th scope="col">
+NEXT_CHANGE#
+</th>
+<th scope="col">
+BEG
+</th>
+<th scope="col">
+END
+</th>
+<th scope="col">
+TIMESTAM
+</th>
+<th scope="col">
+APPLIED
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+             412
+</td>
+<td align="right">
+     66762043787
+</td>
+<td align="right">
+     66762061443
+</td>
+<td>
+NO
+</td>
+<td>
+NO
+</td>
+<td>
+12:00:14
+</td>
+<td>
+CURRENT
+</td>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+             413
+</td>
+<td align="right">
+     66762061443
+</td>
+<td align="right">
+     66762061521
+</td>
+<td>
+NO
+</td>
+<td>
+NO
+</td>
+<td>
+12:00:19
+</td>
+<td>
+CURRENT
+</td>
+</tr>
+</table>
+<p>
+
+2 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Get a history on logical standby apply activity.
+<br>
+SQL> 
+<br>
+SQL> set numwidth 15
+<br>
+SQL> 
+<br>
+SQL> SELECT TO_CHAR(event_time, 'MM/DD HH24:MI:SS') time, commit_scn, current_scn, event, status FROM dba_logstdby_events ORDER BY event_time, commit_scn, current_scn;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+TIME
+</th>
+<th scope="col">
+COMMIT_SCN
+</th>
+<th scope="col">
+CURRENT_SCN
+</th>
+<th scope="col">
+EVENT
+</th>
+<th scope="col">
+STATUS
+</th>
+</tr>
+<tr>
+<td>
+07/21 19:29:04
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/21 19:29:04
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66739822035, HWM 66739822035, SCN 667398
+22035
+</td>
+</tr>
+<tr>
+<td>
+07/22 02:31:53
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/22 02:33:31
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/22 02:33:53
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16246: User initiated abort apply successfully
+ completed
+</td>
+</tr>
+<tr>
+<td>
+07/22 02:34:36
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 02:34:36
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66739848837, HWM 66739848837, SCN 667398
+48836
+</td>
+</tr>
+<tr>
+<td>
+07/22 02:57:08
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/22 02:57:09
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/22 02:57:17
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 02:57:17
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66739854408, HWM 66739854408, SCN 667398
+54422
+</td>
+</tr>
+<tr>
+<td>
+07/22 04:48:12
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/22 04:48:12
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/22 04:59:28
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 04:59:28
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66739854408, HWM 66739854408, SCN 667398
+54422
+</td>
+</tr>
+<tr>
+<td>
+07/22 05:03:36
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/22 05:03:37
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/22 05:07:44
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 05:07:44
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66739854408, HWM 66739854408, SCN 667398
+54422
+</td>
+</tr>
+<tr>
+<td>
+07/22 10:23:45
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/22 10:23:46
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/22 10:24:13
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 10:24:13
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66739854408, HWM 66739854408, SCN 667398
+54422
+</td>
+</tr>
+<tr>
+<td>
+07/22 18:28:45
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/22 18:28:45
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:23:03
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:23:03
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66739854408, HWM 66739854408, SCN 667398
+54422
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:26:28
+</td>
+<td align="right">
+     66740059469
+</td>
+<td align="right">
+     66740059465
+</td>
+<td>
+CREATE TABLE "SYSTEM"."SYS_EXPORT_FULL_05" (abort_step NUMBER,access_method VARC
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:26:28
+</td>
+<td align="right">
+     66740060455
+</td>
+<td align="right">
+     66740060446
+</td>
+<td>
+ALTER TABLE "SYSTEM"."SYS_EXPORT_FULL_05" ADD (UNIQUE (process_order, duplicate)
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:29:21
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16234: restarting to reset Logical Standby app
+ly
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:29:21
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66740151476, HWM 66740151476, SCN 667401
+51475
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:29:21
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:29:21
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16222: automatic Logical Standby retry of last
+ action
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:30:31
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16234: restarting to reset Logical Standby app
+ly
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:30:31
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66740153538, HWM 66740153538, SCN 667401
+53537
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:30:31
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:30:31
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16222: automatic Logical Standby retry of last
+ action
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:56:59
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 19:56:59
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66740219288, HWM 66740219288, SCN 667402
+19287
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:01:21
+</td>
+<td align="right">
+     66740954244
+</td>
+<td align="right">
+     66740954244
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"USER#", 
+	"NAME"
+   ) ORGANIZATIO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:01:21
+</td>
+<td align="right">
+     66740954348
+</td>
+<td align="right">
+     66740954339
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:42
+</td>
+<td align="right">
+     66740977962
+</td>
+<td align="right">
+     66740977962
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"DOC_ID", 
+	"DOC_NAME", 
+	"DOC_TYP
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:43
+</td>
+<td align="right">
+     66740978290
+</td>
+<td align="right">
+     66740978287
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:43
+</td>
+<td align="right">
+     66740980680
+</td>
+<td align="right">
+     66740980680
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"NAMESPACE", 
+	"ATTRIBUTE", 
+	"VAL
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:43
+</td>
+<td align="right">
+     66740980709
+</td>
+<td align="right">
+     66740980706
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:44
+</td>
+<td align="right">
+     66740982171
+</td>
+<td align="right">
+     66740982171
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"OWNER", 
+	"NAME", 
+	"TS_NAME"
+
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:44
+</td>
+<td align="right">
+     66740982205
+</td>
+<td align="right">
+     66740982201
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:44
+</td>
+<td align="right">
+     66740983793
+</td>
+<td align="right">
+     66740983793
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"ACL", 
+	"OWNER", 
+	"ACE_ORDER",
+
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:44
+</td>
+<td align="right">
+     66740983824
+</td>
+<td align="right">
+     66740983821
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:45
+</td>
+<td align="right">
+     66740985545
+</td>
+<td align="right">
+     66740985545
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"HOST", 
+	"LOWER_PORT", 
+	"UPPER_P
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:45
+</td>
+<td align="right">
+     66740985610
+</td>
+<td align="right">
+     66740985607
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:46
+</td>
+<td align="right">
+     66740986463
+</td>
+<td align="right">
+     66740986463
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"WALLET_PATH", 
+	"ACL_NAME", 
+	"AC
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:46
+</td>
+<td align="right">
+     66740986500
+</td>
+<td align="right">
+     66740986497
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:47
+</td>
+<td align="right">
+     66740988017
+</td>
+<td align="right">
+     66740988017
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"OWNER", 
+	"JOB_NAME", 
+	"ARGUMENT
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:47
+</td>
+<td align="right">
+     66740988051
+</td>
+<td align="right">
+     66740988048
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:48
+</td>
+<td align="right">
+     66740989666
+</td>
+<td align="right">
+     66740989666
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"OWNER", 
+	"PROGRAM_NAME", 
+	"ARGU
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:48
+</td>
+<td align="right">
+     66740989699
+</td>
+<td align="right">
+     66740989696
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:49
+</td>
+<td align="right">
+     66740997175
+</td>
+<td align="right">
+     66740997175
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"CODE", 
+	"NFIELD1", 
+	"NFIELD2",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 20:02:49
+</td>
+<td align="right">
+     66740997486
+</td>
+<td align="right">
+     66740997483
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:36:34
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:36:37
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:37:10
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:37:10
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66741224960, HWM 66741224960, SCN 667412
+24966
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:37:25
+</td>
+<td align="right">
+     66741284790
+</td>
+<td align="right">
+     66741284790
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SPRIDEN_PIDM", 
+	"SPRIDEN_ID", 
+	
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:37:25
+</td>
+<td align="right">
+     66741284842
+</td>
+<td align="right">
+     66741284838
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:37:25
+</td>
+<td align="right">
+     66741284896
+</td>
+<td align="right">
+     66741284896
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SPRADDR_PIDM", 
+	"SPRADDR_ATYP_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:37:26
+</td>
+<td align="right">
+     66741284953
+</td>
+<td align="right">
+     66741284949
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:37:27
+</td>
+<td align="right">
+     66741296365
+</td>
+<td align="right">
+     66741296365
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SSBSECT_TERM_CODE", 
+	"SSBSECT_CR
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:37:27
+</td>
+<td align="right">
+     66741296414
+</td>
+<td align="right">
+     66741296410
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:38:26
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:38:27
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:47
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:47
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66741296965, HWM 66741296965, SCN 667412
+96966
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741297016
+</td>
+<td align="right">
+     66741297016
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"GOREMAL_PIDM", 
+	"GOREMAL_EMAL_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741297158
+</td>
+<td align="right">
+     66741297154
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741298303
+</td>
+<td align="right">
+     66741298303
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SPRTELE_PIDM", 
+	"SPRTELE_SEQNO",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741298349
+</td>
+<td align="right">
+     66741298345
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741298940
+</td>
+<td align="right">
+     66741298940
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SPBPERS_PIDM", 
+	"SPBPERS_SSN",
+
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741299099
+</td>
+<td align="right">
+     66741299095
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741299481
+</td>
+<td align="right">
+     66741299481
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"TBRCMNT_PIDM", 
+	"TBRCMNT_FORM",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741299528
+</td>
+<td align="right">
+     66741299524
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741300838
+</td>
+<td align="right">
+     66741300838
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RORSTAT_AIDY_CODE", 
+	"RORSTAT_PI
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:50
+</td>
+<td align="right">
+     66741300887
+</td>
+<td align="right">
+     66741300883
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:51
+</td>
+<td align="right">
+     66741301726
+</td>
+<td align="right">
+     66741301726
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"APREHIS_PIDM", 
+	"APREHIS_SEQ_NO"
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:51
+</td>
+<td align="right">
+     66741301776
+</td>
+<td align="right">
+     66741301772
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:51
+</td>
+<td align="right">
+     66741301975
+</td>
+<td align="right">
+     66741301975
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"APRACTY_PIDM", 
+	"APRACTY_SACT_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:51
+</td>
+<td align="right">
+     66741302021
+</td>
+<td align="right">
+     66741302017
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:51
+</td>
+<td align="right">
+     66741302757
+</td>
+<td align="right">
+     66741302757
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RPRADSB_AIDY_CODE", 
+	"RPRADSB_PI
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:51
+</td>
+<td align="right">
+     66741302807
+</td>
+<td align="right">
+     66741302803
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:51
+</td>
+<td align="right">
+     66741303362
+</td>
+<td align="right">
+     66741303362
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"APBCONS_PIDM", 
+	"APBCONS_PREF_LA
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:39:51
+</td>
+<td align="right">
+     66741303409
+</td>
+<td align="right">
+     66741303405
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:15
+</td>
+<td align="right">
+     66741309609
+</td>
+<td align="right">
+     66741309609
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RPRLAPP_PIDM", 
+	"RPRLAPP_FUND_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:17
+</td>
+<td align="right">
+     66741309684
+</td>
+<td align="right">
+     66741309679
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:17
+</td>
+<td align="right">
+     66741309949
+</td>
+<td align="right">
+     66741309949
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"APRXREF_PIDM", 
+	"APRXREF_XREF_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:17
+</td>
+<td align="right">
+     66741310000
+</td>
+<td align="right">
+     66741309996
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:17
+</td>
+<td align="right">
+     66741310213
+</td>
+<td align="right">
+     66741310213
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"APRADEG_PIDM", 
+	"APRADEG_SEQ_NO"
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:17
+</td>
+<td align="right">
+     66741310269
+</td>
+<td align="right">
+     66741310265
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:17
+</td>
+<td align="right">
+     66741313566
+</td>
+<td align="right">
+     66741313566
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"APRCATG_PIDM", 
+	"APRCATG_DONR_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:17
+</td>
+<td align="right">
+     66741313622
+</td>
+<td align="right">
+     66741313618
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741317351
+</td>
+<td align="right">
+     66741317351
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SYRSRHX_RECORD_SEQ", 
+	"SYRSRHX_S
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741317670
+</td>
+<td align="right">
+     66741317666
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741318920
+</td>
+<td align="right">
+     66741318920
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RORPRST_PIDM", 
+	"RORPRST_PERIOD"
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741318968
+</td>
+<td align="right">
+     66741318964
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741321161
+</td>
+<td align="right">
+     66741321161
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SYRSRHX_RECORD_SEQ", 
+	"SYRSRHX_S
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741321204
+</td>
+<td align="right">
+     66741321200
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741322208
+</td>
+<td align="right">
+     66741322208
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RLRDLDD_PIDM", 
+	"RLRDLDD_LOAN_NO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741322253
+</td>
+<td align="right">
+     66741322249
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741322640
+</td>
+<td align="right">
+     66741322640
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RFRASPC_AIDY_CODE", 
+	"RFRASPC_FU
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741322690
+</td>
+<td align="right">
+     66741322685
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:40:18
+</td>
+<td align="right">
+     66741329150
+</td>
+<td align="right">
+     66741329150
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SMRCXML_PIDM", 
+	"SMRCXML_REQUEST
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:01
+</td>
+<td align="right">
+     66741447163
+</td>
+<td align="right">
+     66741447159
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:01
+</td>
+<td align="right">
+     66741451515
+</td>
+<td align="right">
+     66741451515
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RYBAPMS_SUID", 
+	"RYBAPMS_AUID",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:01
+</td>
+<td align="right">
+     66741451564
+</td>
+<td align="right">
+     66741451560
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:01
+</td>
+<td align="right">
+     66741453107
+</td>
+<td align="right">
+     66741453107
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"APRPROS_PIDM", 
+	"APRPROS_PRTP_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741453150
+</td>
+<td align="right">
+     66741453146
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741457314
+</td>
+<td align="right">
+     66741457314
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"GUBOBJS_NAME", 
+	"GUBOBJS_DESC",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741457357
+</td>
+<td align="right">
+     66741457353
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741460282
+</td>
+<td align="right">
+     66741460282
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"REBYTDO_AIDY_CODE", 
+	"REBYTDO_AC
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741460325
+</td>
+<td align="right">
+     66741460321
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741462564
+</td>
+<td align="right">
+     66741462564
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RERRECN_AIDY_CODE", 
+	"RERRECN_AC
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741462606
+</td>
+<td align="right">
+     66741462602
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741463481
+</td>
+<td align="right">
+     66741463481
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RLRPLUS_PIDM", 
+	"RLRPLUS_LOAN_NO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741463532
+</td>
+<td align="right">
+     66741463528
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741465937
+</td>
+<td align="right">
+     66741465937
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SOBTERM_TERM_CODE", 
+	"SOBTERM_CR
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741466025
+</td>
+<td align="right">
+     66741466021
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741469316
+</td>
+<td align="right">
+     66741469316
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"ROBINST_AIDY_CODE", 
+	"ROBINST_AI
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741469365
+</td>
+<td align="right">
+     66741469361
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741469645
+</td>
+<td align="right">
+     66741469645
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RPBLOPT_AIDY_CODE", 
+	"RPBLOPT_CR
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741469687
+</td>
+<td align="right">
+     66741469683
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741474235
+</td>
+<td align="right">
+     66741474235
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RPTUAPP_AIDY_CODE", 
+	"RPTUAPP_AP
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741474277
+</td>
+<td align="right">
+     66741474273
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741476143
+</td>
+<td align="right">
+     66741476143
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"GORSDAV_TABLE_NAME", 
+	"GORSDAV_A
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741476186
+</td>
+<td align="right">
+     66741476182
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741479121
+</td>
+<td align="right">
+     66741479121
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"REBRMRR_AIDY_CODE", 
+	"REBRMRR_AC
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:02
+</td>
+<td align="right">
+     66741479164
+</td>
+<td align="right">
+     66741479160
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741479750
+</td>
+<td align="right">
+     66741479750
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RORWEBR_AIDY_CODE", 
+	"RORWEBR_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741479792
+</td>
+<td align="right">
+     66741479788
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741481947
+</td>
+<td align="right">
+     66741481947
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"GEBFUNC_EVNT_CRN", 
+	"GEBFUNC_FUN
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741481990
+</td>
+<td align="right">
+     66741481986
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741483485
+</td>
+<td align="right">
+     66741483485
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SMBPGEN_PROGRAM", 
+	"SMBPGEN_TERM
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741483527
+</td>
+<td align="right">
+     66741483523
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741483738
+</td>
+<td align="right">
+     66741483738
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SLBEVNT_CRN", 
+	"SLBEVNT_ETYP_COD
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741483780
+</td>
+<td align="right">
+     66741483776
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741484566
+</td>
+<td align="right">
+     66741484566
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"SOBCTRL_CURR_RULE_IND", 
+	"SOBCTR
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741484608
+</td>
+<td align="right">
+     66741484604
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741485733
+</td>
+<td align="right">
+     66741485733
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RORENRL_PIDM", 
+	"RORENRL_TERM_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741485776
+</td>
+<td align="right">
+     66741485772
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741486782
+</td>
+<td align="right">
+     66741486782
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RTVPTYP_CODE", 
+	"RTVPTYP_DESC",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741486824
+</td>
+<td align="right">
+     66741486820
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741487110
+</td>
+<td align="right">
+     66741487110
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"GORSDAM_TABLE_NAME", 
+	"GORSDAM_A
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741487159
+</td>
+<td align="right">
+     66741487152
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741487908
+</td>
+<td align="right">
+     66741487908
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RLTUMPN_MPN_ID", 
+	"RLTUMPN_MPN_T
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741487951
+</td>
+<td align="right">
+     66741487947
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741489572
+</td>
+<td align="right">
+     66741489572
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RORENRR_AIDY_CODE", 
+	"RORENRR_EN
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741489614
+</td>
+<td align="right">
+     66741489610
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741490639
+</td>
+<td align="right">
+     66741490639
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RTVCOMP_CODE", 
+	"RTVCOMP_DESC",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741490682
+</td>
+<td align="right">
+     66741490678
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741491003
+</td>
+<td align="right">
+     66741491003
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RORSAYR_AIDY_CODE", 
+	"RORSAYR_SA
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741491046
+</td>
+<td align="right">
+     66741491042
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741491219
+</td>
+<td align="right">
+     66741491219
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RTVAPRD_CODE", 
+	"RTVAPRD_DESC",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741491262
+</td>
+<td align="right">
+     66741491258
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741495969
+</td>
+<td align="right">
+     66741495969
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RORATND_PIDM", 
+	"RORATND_TERM_CO
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741496012
+</td>
+<td align="right">
+     66741496008
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741497069
+</td>
+<td align="right">
+     66741497069
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RTVTRST_CODE", 
+	"RTVTRST_DESC",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741497112
+</td>
+<td align="right">
+     66741497108
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741504702
+</td>
+<td align="right">
+     66741504702
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"GUBMODU_CODE", 
+	"GUBMODU_NAME",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741504744
+</td>
+<td align="right">
+     66741504740
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741508576
+</td>
+<td align="right">
+     66741508576
+</td>
+<td>
+CREATE TABLE "SYSTEM"."ET$03FD10330001" 
+   (	"RTVPRCD_CODE", 
+	"RTVPRCD_DESC",
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:41:03
+</td>
+<td align="right">
+     66741508619
+</td>
+<td align="right">
+     66741508615
+</td>
+<td>
+DROP TABLE "SYSTEM"."ET$03FD10330001" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:42:01
+</td>
+<td align="right">
+     66741729884
+</td>
+<td align="right">
+     66741729880
+</td>
+<td>
+DROP TABLE "SYSTEM"."SYS_EXPORT_FULL_05" PURGE
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:42:02
+</td>
+<td align="right">
+     66741738399
+</td>
+<td align="right">
+     66741738395
+</td>
+<td>
+create pfile from spfile
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:42:02
+</td>
+<td align="right">
+     66741739180
+</td>
+<td align="right">
+     66741739176
+</td>
+<td>
+
+        create pfile='/home/svc_oracle/audit/PNTR.07_22_2019_0317.pfile' from m
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/22 23:46:54
+</td>
+<td align="right">
+     66743154242
+</td>
+<td align="right">
+     66743154238
+</td>
+<td>
+
+        create pfile='/home/svc_oracle/audit/PNTR.07_22_2019_1058.pfile' from m
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:07:38
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16222: automatic Logical Standby retry of last
+ action
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:07:38
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66752675007, HWM 66752675007, SCN 667526
+75006
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:07:38
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:18:12
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:18:12
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66756125755, HWM 66756128052, SCN 667561
+25754
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:47
+</td>
+<td align="right">
+     66760185685
+</td>
+<td align="right">
+     66760185681
+</td>
+<td>
+alter database drop logfile group 6
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:47
+</td>
+<td align="right">
+     66760185902
+</td>
+<td align="right">
+     66760185898
+</td>
+<td>
+alter database add logfile thread 1 group 6 ('/u02/oradata/PNTR/redo06a.log') si
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:48
+</td>
+<td align="right">
+     66760186408
+</td>
+<td align="right">
+     66760186404
+</td>
+<td>
+alter database drop logfile group 1
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:48
+</td>
+<td align="right">
+     66760186779
+</td>
+<td align="right">
+     66760186775
+</td>
+<td>
+alter database add logfile thread 1 group 1 ('/u02/oradata/PNTR/redo01a.log') si
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:48
+</td>
+<td align="right">
+     66760187607
+</td>
+<td align="right">
+     66760187603
+</td>
+<td>
+alter database drop logfile group 2
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:48
+</td>
+<td align="right">
+     66760192443
+</td>
+<td align="right">
+     66760192439
+</td>
+<td>
+alter database add logfile thread 1 group 2 ('/u02/oradata/PNTR/redo02a.log') si
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:48
+</td>
+<td align="right">
+     66760192606
+</td>
+<td align="right">
+     66760192602
+</td>
+<td>
+alter database drop logfile group 3
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:48
+</td>
+<td align="right">
+     66760192984
+</td>
+<td align="right">
+     66760192981
+</td>
+<td>
+alter database add logfile thread 1 group 3 ('/u02/oradata/PNTR/redo03a.log') si
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:48
+</td>
+<td align="right">
+     66760193231
+</td>
+<td align="right">
+     66760193228
+</td>
+<td>
+alter database drop logfile group 5
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:48
+</td>
+<td align="right">
+     66760193564
+</td>
+<td align="right">
+     66760193561
+</td>
+<td>
+alter database add logfile thread 1 group 5 ('/u02/oradata/PNTR/redo05a.log') si
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:49
+</td>
+<td align="right">
+     66760212270
+</td>
+<td align="right">
+     66760212266
+</td>
+<td>
+alter database drop logfile group 4
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:49
+</td>
+<td align="right">
+     66760212912
+</td>
+<td align="right">
+     66760212908
+</td>
+<td>
+alter database add logfile thread 1 group 4 ('/u02/oradata/PNTR/redo04a.log') si
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:49
+</td>
+<td align="right">
+     66760213736
+</td>
+<td align="right">
+     66760213732
+</td>
+<td>
+alter database drop standby logfile group 7
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:26:49
+</td>
+<td align="right">
+     66760214135
+</td>
+<td align="right">
+     66760214131
+</td>
+<td>
+alter database add standby logfile thread 1 group 7 ('/u02/oradata/PNTR/sbyredo7
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:31:21
+</td>
+<td align="right">
+     66761737365
+</td>
+<td align="right">
+     66761737361
+</td>
+<td>
+CREATE TABLE "SYSTEM"."SYS_EXPORT_FULL_05" (abort_step NUMBER,access_method VARC
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:31:21
+</td>
+<td align="right">
+     66761738496
+</td>
+<td align="right">
+     66761738487
+</td>
+<td>
+ALTER TABLE "SYSTEM"."SYS_EXPORT_FULL_05" ADD (UNIQUE (process_order, duplicate)
+</td>
+<td>
+ORA-16226: DDL skipped due to lack of support
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:47:52
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:54:43
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:56:56
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/23 00:56:56
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66761741376, HWM 66761741376, SCN 667617
+41391
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:02:27
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16234: restarting to reset Logical Standby app
+ly
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:02:27
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16222: automatic Logical Standby retry of last
+ action
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:02:28
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:02:28
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66761846203, HWM 66761846203, SCN 667618
+46202
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:04:42
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16234: restarting to reset Logical Standby app
+ly
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:04:42
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16222: automatic Logical Standby retry of last
+ action
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:04:45
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:04:45
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66761852698, HWM 66761852698, SCN 667618
+52697
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:10:08
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/23 01:10:09
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/23 02:01:38
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+DBMS_LOGSTDBY.INSTANTIATE_TABLE('"SATURN_MIDD"','"BB_STST_EXTRACT_SNAPSHOT"','FY
+</td>
+<td>
+Instantiation SCN: 66769059857
+</td>
+</tr>
+<tr>
+<td>
+07/23 02:39:58
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+DBMS_LOGSTDBY.INSTANTIATE_TABLE('"SATURN_MIDD"','"BB_BIO_EXTRACT_SNAPSHOT"','FYB
+</td>
+<td>
+Instantiation SCN: 66769169245
+</td>
+</tr>
+<tr>
+<td>
+07/23 03:22:40
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+DBMS_LOGSTDBY.INSTANTIATE_TABLE('"FIMSMGR_MIDD"','"FYBPRDO"','FYBPRDO')
+</td>
+<td>
+Instantiation SCN: 66769419359
+</td>
+</tr>
+<tr>
+<td>
+07/23 03:23:35
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/23 03:23:35
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66762061493, HWM 66762061493, SCN 667620
+61520
+</td>
+</tr>
+<tr>
+<td>
+07/23 04:34:08
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/23 04:34:09
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/23 04:36:47
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/23 04:36:47
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66762061493, HWM 66762061493, SCN 667620
+61520
+</td>
+</tr>
+<tr>
+<td>
+07/23 06:16:33
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Shutdown acknowledged
+</td>
+</tr>
+<tr>
+<td>
+07/23 06:16:34
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16128: User initiated stop apply successfully
+completed
+</td>
+</tr>
+<tr>
+<td>
+07/23 06:19:18
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+ORA-16111: log mining and apply setting up
+</td>
+</tr>
+<tr>
+<td>
+07/23 06:19:18
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+Apply LWM 66762061493, HWM 66762061493, SCN 667620
+61520
+</td>
+</tr>
+</table>
+<p>
+
+221 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Dump logical standby stats.'
+<br>
+SQL> 
+<br>
+SQL> column name format a40
+<br>
+SQL> column value format a20
+<br>
+SQL> 
+<br>
+SQL> SELECT * FROM v$logstdby_stats;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+NAME
+</th>
+<th scope="col">
+VALUE
+</th>
+<th scope="col">
+CON_ID
+</th>
+</tr>
+<tr>
+<td>
+logminer session id
+</td>
+<td>
+1
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+number of preparers
+</td>
+<td>
+1
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+number of appliers
+</td>
+<td>
+5
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+server processes in use
+</td>
+<td>
+9
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+maximum SGA for LCR cache (MB)
+</td>
+<td>
+100
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+maximum events recorded
+</td>
+<td>
+10000
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+preserve commit order
+</td>
+<td>
+TRUE
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+transaction consistency
+</td>
+<td>
+FULL
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+record skipped errors
+</td>
+<td>
+Y
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+record skipped DDLs
+</td>
+<td>
+Y
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+record applied DDLs
+</td>
+<td>
+N
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+record unsupported operations
+</td>
+<td>
+N
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+realtime apply
+</td>
+<td>
+Y
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+apply delay (minutes)
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+peak apply rate (bytes/sec)
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+record skipped PLSQL
+</td>
+<td>
+N
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+record applied PLSQL
+</td>
+<td>
+N
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+current apply rate (bytes/sec)
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+coordinator state
+</td>
+<td>
+IDLE
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+coordinator startup time
+</td>
+<td>
+23-JUL-19
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+coordinator uptime (seconds)
+</td>
+<td>
+9685
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+txns received from logminer
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+txns assigned to apply
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+txns applied
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+txns discarded during restart
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+large txns waiting to be assigned
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+session restart SCN
+</td>
+<td>
+66762061095
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+rolled back txns mined
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+DDL txns mined
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+CTAS txns mined
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+bytes of redo mined
+</td>
+<td>
+35882224
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+bytes paged out
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+pageout time (seconds)
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+bytes checkpointed
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+checkpoint time (seconds)
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+system idle time (seconds)
+</td>
+<td>
+9677
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+standby redo logs mined
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+archived logs mined
+</td>
+<td>
+2
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+gap fetched logs mined
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+standby redo log reuse detected
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+logfile open failures
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+current logfile wait (seconds)
+</td>
+<td>
+9677
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+total logfile wait (seconds)
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+thread enable mined
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+thread disable mined
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+distinct txns in queue
+</td>
+<td>
+0
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+<tr>
+<td>
+number of logged PLSQL procedures mined
+</td>
+<td>
+2
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+</table>
+<p>
+
+47 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Dump logical standby parameters.
+<br>
+SQL> 
+<br>
+SQL> column name format a33 wrap
+<br>
+SQL> column value format a33 wrap
+<br>
+SQL> column type format 99
+<br>
+SQL> 
+<br>
+SQL> SELECT name, value, type FROM system.logstdby$parameters ORDER BY type, name;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+NAME
+</th>
+<th scope="col">
+VALUE
+</th>
+<th scope="col">
+TYPE
+</th>
+</tr>
+<tr>
+<td>
+DISABLE_APPLY_DELAY
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+  2
+</td>
+</tr>
+<tr>
+<td>
+REAL_TIME
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+  2
+</td>
+</tr>
+<tr>
+<td>
+APPLY_SCN
+</td>
+<td>
+66739822035
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+FIRST_SCN
+</td>
+<td>
+66739821307
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+GUARD_STANDBY
+</td>
+<td>
+READY
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+LMNR_SID
+</td>
+<td>
+1
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+PRIMARY
+</td>
+<td>
+972011548
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+</table>
+<p>
+
+7 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Gather log miner session and dictionary information.
+<br>
+SQL> 
+<br>
+SQL> set numwidth 15
+<br>
+SQL> 
+<br>
+SQL> SELECT * FROM system.logmnr_session$;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+SESSION#
+</th>
+<th scope="col">
+CLIENT#
+</th>
+<th scope="col">
+SESSION_NAME
+</th>
+<th scope="col">
+DB_ID
+</th>
+<th scope="col">
+RESETLOGS_CHANGE#
+</th>
+<th scope="col">
+SESSION_ATTR
+</th>
+<th scope="col">
+SESSION_ATTR_VERBOSE
+</th>
+<th scope="col">
+START_SCN
+</th>
+<th scope="col">
+END_SCN
+</th>
+<th scope="col">
+SPILL_SCN
+</th>
+<th scope="col">
+SPILL_TIM
+</th>
+<th scope="col">
+OLDEST_SCN
+</th>
+<th scope="col">
+RESUME_SCN
+</th>
+<th scope="col">
+GLOBAL_DB_NAME
+</th>
+<th scope="col">
+RESET_TIMESTAMP
+</th>
+<th scope="col">
+BRANCH_SCN
+</th>
+<th scope="col">
+VERSION
+</th>
+<th scope="col">
+SPARE1
+</th>
+<th scope="col">
+SPARE2
+</th>
+<th scope="col">
+SPARE3
+</th>
+<th scope="col">
+SPARE4
+</th>
+<th scope="col">
+SPARE5
+</th>
+<th scope="col">
+SPARE6
+</th>
+<th scope="col">
+SPARE7
+</th>
+<th scope="col">
+SPARE8
+</th>
+<th scope="col">
+REDO_COMPAT
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td align="right">
+               2
+</td>
+<td>
+Logical_Standby$
+</td>
+<td align="right">
+       972011548
+</td>
+<td align="right">
+     66732907379
+</td>
+<td align="right">
+       186712284
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+     66762061095
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+     66762061095
+</td>
+<td>
+23-JUL-19
+</td>
+<td align="right">
+     66762061095
+</td>
+<td align="right">
+     66762061443
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+      1014132394
+</td>
+<td align="right">
+               0
+</td>
+<td>
+12.2.0.1.0
+</td>
+<td align="right">
+           16384
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+12.2.0.0.0
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> SELECT * FROM system.logmnr_dictionary$;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+DB_NAME
+</th>
+<th scope="col">
+DB_ID
+</th>
+<th scope="col">
+DB_CREATED
+</th>
+<th scope="col">
+DB_DICT_CREATED
+</th>
+<th scope="col">
+DB_DICT_SCN
+</th>
+<th scope="col">
+DB_THREAD_MAP
+</th>
+<th scope="col">
+DB_TXN_SCNBAS
+</th>
+<th scope="col">
+DB_TXN_SCNWRP
+</th>
+<th scope="col">
+DB_RESETLOGS_CHANGE#
+</th>
+<th scope="col">
+DB_RESETLOGS_TIME
+</th>
+<th scope="col">
+DB_VERSION_TIME
+</th>
+<th scope="col">
+DB_REDO_
+</th>
+<th scope="col">
+DB_REDO_RELEASE
+</th>
+<th scope="col">
+DB_CHARACTER_SET
+</th>
+<th scope="col">
+DB_VERSION
+</th>
+<th scope="col">
+DB_STATUS
+</th>
+<th scope="col">
+DB_GLOBAL_NAME
+</th>
+<th scope="col">
+DB_DICT_MAXOBJECTS
+</th>
+<th scope="col">
+DB_DICT_OBJECTCOUNT
+</th>
+<th scope="col">
+LOGMNR_UID
+</th>
+<th scope="col">
+LOGMNR_FLAGS
+</th>
+<th scope="col">
+PDB_NAME
+</th>
+<th scope="col">
+PDB_ID
+</th>
+<th scope="col">
+PDB_UID
+</th>
+<th scope="col">
+PDB_DBID
+</th>
+<th scope="col">
+PDB_GUID
+</th>
+<th scope="col">
+PDB_CREATE_SCN
+</th>
+<th scope="col">
+PDB_COUNT
+</th>
+<th scope="col">
+PDB_GLOBAL_NAME
+</th>
+<th scope="col">
+FED_ROOT_CON_ID#
+</th>
+</tr>
+<tr>
+<td>
+PNTR
+</td>
+<td align="right">
+       972011548
+</td>
+<td>
+09/14/2011 13:26:52
+</td>
+<td>
+07/21/2019 18:38:21
+</td>
+<td align="right">
+     66739786837
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+      2315311867
+</td>
+<td align="right">
+              15
+</td>
+<td align="right">
+     66732907379
+</td>
+<td>
+07/20/2019 15:26:34
+</td>
+<td>
+02/17/2017 23:44:52
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+AL32UTF8
+</td>
+<td>
+12.2.0.1.0
+</td>
+<td>
+Production
+</td>
+<td>
+PNTR
+</td>
+<td align="right">
+         1022825
+</td>
+<td align="right">
+          117597
+</td>
+<td align="right">
+             102
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> SELECT * FROM system.logmnr_dictstate$;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+LOGMNR_UID
+</th>
+<th scope="col">
+START_SCNBAS
+</th>
+<th scope="col">
+START_SCNWRP
+</th>
+<th scope="col">
+END_SCNBAS
+</th>
+<th scope="col">
+END_SCNWRP
+</th>
+<th scope="col">
+REDO_THREAD
+</th>
+<th scope="col">
+RBASQN
+</th>
+<th scope="col">
+RBABLK
+</th>
+<th scope="col">
+RBABYTE
+</th>
+<th scope="col">
+LOGMNR_FLAGS
+</th>
+</tr>
+<tr>
+<td align="right">
+             102
+</td>
+<td align="right">
+      2315311867
+</td>
+<td align="right">
+              15
+</td>
+<td align="right">
+      2337551937
+</td>
+<td align="right">
+              15
+</td>
+<td align="right">
+               1
+</td>
+<td align="right">
+             412
+</td>
+<td align="right">
+          141050
+</td>
+<td align="right">
+              16
+</td>
+<td align="right">
+&nbsp;
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> SELECT * FROM v$logmnr_session;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+SESSION_ID
+</th>
+<th scope="col">
+SESSION_NAME
+</th>
+<th scope="col">
+SESSION_S
+</th>
+<th scope="col">
+DB_NAME
+</th>
+<th scope="col">
+DB_ID
+</th>
+<th scope="col">
+RESET_SCN
+</th>
+<th scope="col">
+RESET_TIMESTAMP
+</th>
+<th scope="col">
+RESET_TIM
+</th>
+<th scope="col">
+NUM_PROCESS
+</th>
+<th scope="col">
+CHUNK_SIZE
+</th>
+<th scope="col">
+START_SCN
+</th>
+<th scope="col">
+END_SCN
+</th>
+<th scope="col">
+SPILL_SCN
+</th>
+<th scope="col">
+PROCESSED_SCN
+</th>
+<th scope="col">
+PROCESSED
+</th>
+<th scope="col">
+PREPARED_SCN
+</th>
+<th scope="col">
+READ_SCN
+</th>
+<th scope="col">
+LOW_MARK_SCN
+</th>
+<th scope="col">
+CONSUMED_SCN
+</th>
+<th scope="col">
+MAX_MEMORY_SIZE
+</th>
+<th scope="col">
+USED_MEMORY_SIZE
+</th>
+<th scope="col">
+BUILDER_WORK_SIZE
+</th>
+<th scope="col">
+PREPARED_WORK_SIZE
+</th>
+<th scope="col">
+AVAILABLE_WORK_SIZE
+</th>
+<th scope="col">
+AVAILABLE_TXN
+</th>
+<th scope="col">
+AVAILABLE_COMMITTED_TXN
+</th>
+<th scope="col">
+DELIVERED_TXN
+</th>
+<th scope="col">
+DELIVERED_COMMITTED_TXN
+</th>
+<th scope="col">
+PINNED_TXN
+</th>
+<th scope="col">
+PINNED_COMMITTED_TXN
+</th>
+<th scope="col">
+CHECKPOINT_INTERVAL
+</th>
+<th scope="col">
+CON_ID
+</th>
+</tr>
+<tr>
+<td align="right">
+               1
+</td>
+<td>
+Logical_Standby$
+</td>
+<td>
+ACTIVE
+</td>
+<td>
+&nbsp;
+</td>
+<td align="right">
+       972011548
+</td>
+<td align="right">
+     66732907379
+</td>
+<td align="right">
+      1014132394
+</td>
+<td>
+20-JUL-19
+</td>
+<td align="right">
+               3
+</td>
+<td align="right">
+             201
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+     66762061095
+</td>
+<td align="right">
+     66762061521
+</td>
+<td>
+23-JUL-19
+</td>
+<td align="right">
+     66762061518
+</td>
+<td align="right">
+     66762061521
+</td>
+<td align="right">
+     66762061521
+</td>
+<td align="right">
+     66762061516
+</td>
+<td align="right">
+       104857600
+</td>
+<td align="right">
+        14202040
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+               0
+</td>
+<td align="right">
+             500
+</td>
+<td align="right">
+               0
+</td>
+</tr>
+</table>
+<p>
+
+1 row selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Query the log miner dictionary for key tables necessary to process changes for logical standby.
+<br>
+SQL> -- Label security will move AUD$ from SYS to SYSTEM.
+<br>
+SQL> -- A synonym will remain in SYS but Logical Standby does not support this.
+<br>
+SQL> 
+<br>
+SQL> set numwidth 5
+<br>
+SQL> column name format a9 wrap
+<br>
+SQL> column owner format a6 wrap
+<br>
+SQL> 
+<br>
+SQL> SELECT o.logmnr_uid, o.obj#, o.objv#, u.name owner, o.name FROM system.logmnr_obj$ o, system.logmnr_user$ u WHERE o.logmnr_uid = u.logmnr_uid AND o.owner# = u.user# AND o.name IN ('JOB$', 'JOBSEQ', 'SEQ$', 'AUD$', 'FGA_LOG$', 'IND$', 'COL$', 'LOGSTDBY$PARAMETER') ORDER BY u.name;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+LOGMNR_UID
+</th>
+<th scope="col">
+OBJ#
+</th>
+<th scope="col">
+OBJV#
+</th>
+<th scope="col">
+OWNER
+</th>
+<th scope="col">
+NAME
+</th>
+</tr>
+<tr>
+<td align="right">
+             102
+</td>
+<td align="right">
+             559
+</td>
+<td align="right">
+               6
+</td>
+<td>
+SYS
+</td>
+<td>
+AUD$
+</td>
+</tr>
+<tr>
+<td align="right">
+             102
+</td>
+<td align="right">
+             565
+</td>
+<td align="right">
+               9
+</td>
+<td>
+SYS
+</td>
+<td>
+FGA_LOG$
+</td>
+</tr>
+<tr>
+<td align="right">
+             102
+</td>
+<td align="right">
+              68
+</td>
+<td align="right">
+               2
+</td>
+<td>
+SYS
+</td>
+<td>
+SEQ$
+</td>
+</tr>
+<tr>
+<td align="right">
+             102
+</td>
+<td align="right">
+         1022370
+</td>
+<td align="right">
+               1
+</td>
+<td>
+SYS
+</td>
+<td>
+IND$
+</td>
+</tr>
+<tr>
+<td align="right">
+             102
+</td>
+<td align="right">
+             237
+</td>
+<td align="right">
+               6
+</td>
+<td>
+SYS
+</td>
+<td>
+JOB$
+</td>
+</tr>
+<tr>
+<td align="right">
+             102
+</td>
+<td align="right">
+         1022363
+</td>
+<td align="right">
+               1
+</td>
+<td>
+SYS
+</td>
+<td>
+COL$
+</td>
+</tr>
+<tr>
+<td align="right">
+             102
+</td>
+<td align="right">
+             236
+</td>
+<td align="right">
+           65535
+</td>
+<td>
+SYS
+</td>
+<td>
+JOBSEQ
+</td>
+</tr>
+</table>
+<p>
+
+7 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> -- Non-default init parameters. For a RAC DB Thread# = * means the value is the same for all threads (SID=*)
+<br>
+SQL> -- Threads with different values are shown with their individual thread# and values.
+<br>
+SQL> 
+<br>
+SQL> column num noprint
+<br>
+SQL> column name format a28
+<br>
+SQL> 
+<br>
+SQL> SELECT num, '*' "THREAD#", name, value FROM v$PARAMETER WHERE NUM IN (SELECT num FROM v$parameter WHERE (isdefault = 'FALSE' OR ismodified <> 'FALSE') AND name NOT LIKE 'nls%'
+<br>
+  2  MINUS
+<br>
+  3  SELECT num FROM gv$parameter gvp, gv$instance gvi WHERE num IN (SELECT DISTINCT gvpa.num FROM gv$parameter gvpa, gv$parameter gvpb WHERE gvpa.num = gvpb.num AND  gvpa.value <> gvpb.value AND (gvpa.isdefault = 'FALSE' OR gvpa.ismodified <> 'FALSE') AND gvpa.name NOT LIKE 'nls%') AND gvi.inst_id = gvp.inst_id  AND (gvp.isdefault = 'FALSE' OR gvp.ismodified <> 'FALSE') AND gvp.name NOT LIKE 'nls%')
+<br>
+  4  UNION
+<br>
+  5  SELECT num, TO_CHAR(thread#) "THREAD#", name, value FROM gv$parameter gvp, gv$instance gvi WHERE num IN (SELECT DISTINCT gvpa.num FROM gv$parameter gvpa, gv$parameter gvpb WHERE gvpa.num = gvpb.num AND gvpa.value <> gvpb.value AND (gvpa.isdefault = 'FALSE' OR gvpa.ismodified <> 'FALSE') AND gvp.name NOT LIKE 'nls%') AND gvi.inst_id = gvp.inst_id  AND (gvp.isdefault = 'FALSE' OR gvp.ismodified <> 'FALSE') AND gvp.name NOT LIKE 'nls%' ORDER BY 1, 2;
+<br>
+<p>
+<table border='1' width='90%' align='center' summary='Script output'>
+<tr>
+<th scope="col">
+THREAD#
+</th>
+<th scope="col">
+NAME
+</th>
+<th scope="col">
+VALUE
+</th>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+processes
+</td>
+<td>
+2100
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+sessions
+</td>
+<td>
+4000
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+resource_limit
+</td>
+<td>
+TRUE
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+event
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+sga_max_size
+</td>
+<td>
+37580963840
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+shared_pool_size
+</td>
+<td>
+2147483648
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+shared_pool_reserved_size
+</td>
+<td>
+464728883
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+pga_aggregate_limit
+</td>
+<td>
+15032385536
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+filesystemio_options
+</td>
+<td>
+SETALL
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+service_names
+</td>
+<td>
+SNAP
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+sga_target
+</td>
+<td>
+33151778816
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+control_files
+</td>
+<td>
+/u02/oradata/SNAP/control01.ctl,
+/u02/oradata/SNAP/control02.ctl
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_file_name_convert
+</td>
+<td>
+/u02/oradata/PNTR, /u02/oradata/S
+NAP, /u01/app/oracle/product/12.1
+.0/dbhome_1/dbs/, /u02/oradata/SN
+AP
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+log_file_name_convert
+</td>
+<td>
+PNTR, SNAP
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+control_file_record_keep_tim
+e
+</td>
+<td>
+15
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_block_size
+</td>
+<td>
+8192
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_2k_cache_size
+</td>
+<td>
+268435456
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_keep_cache_size
+</td>
+<td>
+134217728
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+compatible
+</td>
+<td>
+12.2.0
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+log_archive_dest_1
+</td>
+<td>
+LOCATION=/u03/archivelog/SNAP VAL
+ID_FOR=(ALL_LOGFILES,ALL_ROLES) D
+B_UNIQUE_NAME=SNAP
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+log_archive_dest_2
+</td>
+<td>
+LOCATION=/u03/archivelog/SNAP/sta
+ndby_logs VALID_FOR=(STANDBY_LOGF
+ILE, STANDBY_ROLE) DB_UNIQUE_NAME
+=SNAP
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+log_archive_dest_state_2
+</td>
+<td>
+ENABLE
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+log_archive_min_succeed_dest
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+fal_server
+</td>
+<td>
+PNTR
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+log_archive_trace
+</td>
+<td>
+0
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+log_archive_config
+</td>
+<td>
+DG_CONFIG=(SNAP,PNTR)
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+log_archive_format
+</td>
+<td>
+%t_%s_%r.dbf
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+log_archive_max_processes
+</td>
+<td>
+4
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+archive_lag_target
+</td>
+<td>
+1200
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_file_multiblock_read_coun
+t
+</td>
+<td>
+16
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_recovery_file_dest
+</td>
+<td>
+/u03/fast_recovery_area
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_recovery_file_dest_size
+</td>
+<td>
+21474836480
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+standby_file_management
+</td>
+<td>
+AUTO
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+fast_start_mttr_target
+</td>
+<td>
+1800
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_flashback_retention_targe
+t
+</td>
+<td>
+2880
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+undo_management
+</td>
+<td>
+AUTO
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+undo_tablespace
+</td>
+<td>
+UNDOTBS1
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+undo_retention
+</td>
+<td>
+5184000
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+recyclebin
+</td>
+<td>
+ON
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+remote_login_passwordfile
+</td>
+<td>
+EXCLUSIVE
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_domain
+</td>
+<td>
+&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+dispatchers
+</td>
+<td>
+(protocol=TCP)
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+shared_servers
+</td>
+<td>
+1
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+local_listener
+</td>
+<td>
+LISTENER_SNAP
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+session_cached_cursors
+</td>
+<td>
+500
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+smtp_out_server
+</td>
+<td>
+infr-psmtp-401.elluciancloud.com
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+java_jit_enabled
+</td>
+<td>
+TRUE
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+job_queue_processes
+</td>
+<td>
+10
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+parallel_max_servers
+</td>
+<td>
+4
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+core_dump_dest
+</td>
+<td>
+/u01/app/oracle/admin/SNAP/cdump
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+audit_file_dest
+</td>
+<td>
+/u01/app/oracle/admin/SNAP/adump
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+audit_trail
+</td>
+<td>
+DB
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_name
+</td>
+<td>
+SNAP
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+db_unique_name
+</td>
+<td>
+SNAP
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+open_cursors
+</td>
+<td>
+1024
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+optimizer_mode
+</td>
+<td>
+FIRST_ROWS_10
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+optimizer_index_cost_adj
+</td>
+<td>
+30
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+optimizer_index_caching
+</td>
+<td>
+90
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+pga_aggregate_target
+</td>
+<td>
+6610111116
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+_optimizer_ads_use_result_ca
+che
+</td>
+<td>
+FALSE
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+dg_broker_start
+</td>
+<td>
+TRUE
+</td>
+</tr>
+<tr>
+<td>
+*
+</td>
+<td>
+diagnostic_dest
+</td>
+<td>
+/u01/app/oracle
+</td>
+</tr>
+</table>
+<p>
+
+62 rows selected.<br>
+<br>
+
+
+SQL> 
+<br>
+SQL> spool off
+<br>

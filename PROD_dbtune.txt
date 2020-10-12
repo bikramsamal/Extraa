@@ -1,0 +1,51 @@
+ORACLE_SID = [APPXPROD] ? PROD
+The Oracle base remains unchanged with value /u01/app/oracle
+[svc_oracle@FORDH-PBNRD-501 ~]$
+[svc_oracle@FORDH-PBNRD-501 ~]$ dbtune.pl --checkdb
+
+======================
+----dbtune.pl v3.0----
+--updated 07.18.2019--
+======================
+
+-----dbtune.pl LOG DIRECTORY-----
+dbtune dir - /home/svc_oracle/dbtune/
+---------------------------------
+
+
+-----------------------------------------------
+Checking Number of Databases and Type
+-----------------------------------------------
+
+Number of databases detected : 2
+
+
+---------------------------------------------------------------------------------------------------------------------
+Banner            DegreeWorks     ODS/REPORTING   AppWorks        Luminis
+---------------------------------------------------------------------------------------------------------------------
+1                 0               0               0               0
+
+---------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------
+Checking Database Parameters
+-----------------------------------------------
+---DB Name---
+PROD
+
+---DB Version---
+12.2.0.1.0
+
+---Application---
+Banner
+
+---------------------------------------------------------------------------------------------------------------------
+Parameter name              Current              Desired              Change Needed        Change Requires Bounce
+---------------------------------------------------------------------------------------------------------------------
+sga_max_size                70866960384          66142496358          yes                     yes
+sga_target                  70866960384          66142496358          yes                     yes
+processes                   4000                 4202                 yes                     yes
+pga_aggregate_target        15032385536          13220457532          yes                     yes
+pga_aggregate_limit         30064771072          0                    yes                     yes
+memory_target               0                    0                    no                      yes
+memory_max_target           0                    0                    no                      yes
